@@ -1,1 +1,1 @@
-# shm_image_problem
+# Image in shared memory problem
