@@ -25,15 +25,17 @@ add_compile_options(
         -Werror
 )
 
+
 add_subdirectory(external)
 
 get_target_property(boost_include_dirs boost INTERFACE_INCLUDE_DIRECTORIES)
+find_package(PNG REQUIRED)
+include_directories(${PNG_INCLUDE_DIR})
 
 add_executable(image_processor image_processor/main.cpp)
 target_include_directories(image_processor SYSTEM PUBLIC ${boost_include_dirs})
-target_link_libraries(image_processor PUBLIC rt pthread)
+target_link_libraries(image_processor PUBLIC rt pthread ${PNG_LIBRARY})
 
-add_executable(image_reader image_reader/main.cpp)
+add_executable(image_reader image_reader/main.cpp image_reader/shm.cpp)
 target_include_directories(image_reader SYSTEM PUBLIC ${boost_include_dirs})
-target_link_libraries(image_reader PUBLIC rt pthread)
-
+target_link_libraries(image_reader PUBLIC rt pthread ${PNG_LIBRARY})

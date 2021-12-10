@@ -1,12 +1,7 @@
-#include <boost/interprocess/managed_shared_memory.hpp>
-#include <boost/interprocess/allocators/allocator.hpp>
-#include <boost/interprocess/containers/string.hpp>
-#include <boost/interprocess/sync/interprocess_mutex.hpp>
-#include <boost/interprocess/sync/interprocess_condition.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <fstream>
 #include <iostream>
-
-using namespace boost::interprocess;
+#include <sstream>
+#include "shm.h"
 
 /*
     Todo:
@@ -29,35 +24,75 @@ using namespace boost::interprocess;
 int main(int, char**) {
     std::cout << "Image reader started!" << std::endl;
 
-    managed_shared_memory managed_shm {open_only, "shared_memory_1"};
-    std::cout << "Size           = " << managed_shm.get_size() << std::endl;
-    std::cout << "Free memory    = " << managed_shm.get_free_memory() << std::endl;
-    std::cout << "Named objects  = " << managed_shm.get_num_named_objects() << std::endl;
-    std::cout << "Unique objects = " << managed_shm.get_num_unique_objects() << std::endl;
-    
-    typedef allocator <char, managed_shared_memory::segment_manager> CharAllocator;
-    typedef basic_string<char, std::char_traits<char>, CharAllocator> string;
-    
+    //std::string filename("example_image.png");
+    //boost::gil::rgb8_image_t img(640, 480);
 
-    interprocess_mutex *mtx = managed_shm.find_or_construct<interprocess_mutex>("mtx")();
-    interprocess_condition *cnd = managed_shm.find_or_construct<interprocess_condition>("cnd")();
-    {
-        scoped_lock<interprocess_mutex> lock{*mtx};
-        string *input = managed_shm.find_or_construct<string>("StringInput")("", managed_shm.get_segment_manager());
-        std::cout << "StringInput" << *input << std::endl;
-        input->insert(input->length(), "Hello, world!");
-        std::cout << *input << std::endl;
+    // write data into image
 
-        cnd->notify_all();
-        std::cout << "lock" << std::endl;
-        cnd->wait(lock);
+    //boost::gil::write_view(filename, view(img), boost::gil::png_tag());
 
+    std::ifstream in("example_image_rgb16.png", std::ios::binary);
+    std::ofstream out("example_image_rgb16_greyscale.png", std::ios_base::out  | std::ios::binary);
 
-        auto output = managed_shm.find<string>("StringOutput");
-
-        std::cout << "Input: " << *input << std::endl;
-        std::cout << "Output: " << *output.first << std::endl;
-        output.first->clear();
+ //   std::stringstream temp(std::ios_base::in  | std::ios::binary);
+ //   temp << img_buff.rdbuf();
+    if (in.is_open()) {
+        Shm shm;
+        shm.print();
+        shm.dostuff2(in, out);
     }
+/*
+    std::stringstream out_buff(std::ios::out | std::ios::binary);
+    boost::gil::rgb16_image_t src;
+    boost::gil::write_view(out_buff, view(src), boost::gil::png_tag());
+    
+
+    std::stringstream in_buff(std::ios::in | std::ios::binary);
+    in_buff << out_buff.rdbuf();
+*/
+    //img_buff.seekg (0, img_buff.beg);
+    //in.seekg(0, in.beg);
+    /*
+    boost::gil::rgb16_image_t img;
+    try {
+        std::cout << "Read image" << std::endl;
+        boost::gil::read_image(img_buff, img, boost::gil::png_tag());
+        //boost::gil::read_and_convert_image(img_buff, img, boost::gil::png_tag());
+
+    }
+    catch (const std::ios_base::failure &ib_f){
+        std::cout << "what: " << ib_f.what() << std::endl;
+        return 1;
+    }
+
+    std::cout << img.dimensions().x << " x " << img.dimensions().y << std::endl;
+
+    std::ofstream out("example_image_rgb16_greyscale.png", std::ios::binary);
+    boost::gil::write_view(out, view(img), boost::gil::png_tag());*/
+
+/*
+    // Funkar fint!
+
+    std::string filename2("example_image_rgb16.png");
+    std::cout << "filename = " << filename2 << std::endl;
+    boost::gil::rgb16_image_t img2;
+    boost::gil::read_image(filename2, img2, boost::gil::png_tag());
+
+    std::cout << img2.dimensions().x << " x " << img2.dimensions().y << std::endl;
+
+    boost::gil::rgb16_image_t ccv_image(img2.dimensions());
+    auto test = color_converted_view< boost::gil::gray8_pixel_t>(view(img2));
+    
+
+    std::string out_filename("grayscale.png");
+    boost::gil::write_view(out_filename, test, boost::gil::png_tag());
+  */  
+
+
+
+    // Shm shm;
+    // shm.print();
+    // shm.dostuff();
+
     return 0;
 }
