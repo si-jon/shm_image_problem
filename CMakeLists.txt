@@ -33,7 +33,7 @@ get_target_property(boost_include_dirs boost INTERFACE_INCLUDE_DIRECTORIES)
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
 
-add_executable(image_processor image_processor/main.cpp image_processor/image_processor.cpp)
+add_executable(image_processor image_processor/main.cpp image_processor/image_processor.cpp shared/shm.cpp)
 target_include_directories(image_processor SYSTEM PUBLIC ${boost_include_dirs})
 target_link_libraries(image_processor PUBLIC rt pthread ${PNG_LIBRARY})
 
