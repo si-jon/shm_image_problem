@@ -11,7 +11,7 @@
 using namespace boost::interprocess;
 
 shared_memory_wrapper::shared_memory_wrapper():
-    m_shared_segment {open_or_create, "shared_memory_1", (1048575)}
+    m_shared_segment {open_or_create, "shared_memory_1", (50000000)}
 {
     m_mutex = m_shared_segment.find_or_construct<interprocess_mutex>("mtx")();
     m_cond_read_and_write = m_shared_segment.find_or_construct<interprocess_condition>("cnd")();
