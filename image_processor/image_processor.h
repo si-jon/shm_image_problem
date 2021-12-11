@@ -8,6 +8,7 @@ class image_processor {
         ~image_processor();
 
         void run();
+    
 };
 
 #endif

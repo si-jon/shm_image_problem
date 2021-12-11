@@ -1,4 +1,4 @@
-#include "shm.h"
+#include "shared_memory_wrapper.h"
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/containers/string.hpp>
@@ -10,17 +10,17 @@
 
 using namespace boost::interprocess;
 
-Shm::Shm():
+shared_memory_wrapper::shared_memory_wrapper():
     m_shared_segment {open_or_create, "shared_memory_1", (1048575)}
 {
     m_mutex = m_shared_segment.find_or_construct<interprocess_mutex>("mtx")();
     m_cond_read_and_write = m_shared_segment.find_or_construct<interprocess_condition>("cnd")();
 }
 
-Shm::~Shm() {
+shared_memory_wrapper::~shared_memory_wrapper() {
 }
 
-void Shm::print() {
+void shared_memory_wrapper::print() {
     std::cout << "Size           = " << m_shared_segment.get_size() << std::endl;
     std::cout << "Free memory    = " << m_shared_segment.get_free_memory() << std::endl;
     std::cout << "Named objects  = " << m_shared_segment.get_num_named_objects() << std::endl;
@@ -34,7 +34,7 @@ long int get_stream_length(std::istream& in) {
     return length;
 }
 
-void Shm::write_from_instream(std::istream& in){
+void shared_memory_wrapper::write_from_instream(std::istream& in){
 
     try {
         scoped_lock<interprocess_mutex> lock{*m_mutex};
@@ -51,7 +51,7 @@ void Shm::write_from_instream(std::istream& in){
     }
 }
 
-void Shm::read_to_outstream(std::ostream& out){
+void shared_memory_wrapper::read_to_outstream(std::ostream& out){
     scoped_lock<interprocess_mutex> lock{*m_mutex};
 
     auto output = m_shared_segment.find<char>("processed");
@@ -60,7 +60,7 @@ void Shm::read_to_outstream(std::ostream& out){
     out << buff_stream.rdbuf();
 }
 
-void Shm::write_named_object_from_instream(std::istream& in, const char* name){
+void shared_memory_wrapper::write_named_object_from_instream(std::istream& in, const char* name){
 
     try {
         scoped_lock<interprocess_mutex> lock{*m_mutex};
@@ -77,7 +77,7 @@ void Shm::write_named_object_from_instream(std::istream& in, const char* name){
     }
 }
 
-void Shm::read_named_object_to_outstream(std::ostream& out, const char* name){
+void shared_memory_wrapper::read_named_object_to_outstream(std::ostream& out, const char* name){
     scoped_lock<interprocess_mutex> lock{*m_mutex};
 
     auto output = m_shared_segment.find<char>(name);
@@ -86,11 +86,21 @@ void Shm::read_named_object_to_outstream(std::ostream& out, const char* name){
     out << buff_stream.rdbuf();
 }
 
-bool Shm::named_object_exists(const char *name) {
+bool shared_memory_wrapper::named_object_exists(const char *name) {
     return (m_shared_segment.find<char>(name).first != 0);
 }
 
-void Shm::remove_named_object(const char *name) {
+void shared_memory_wrapper::remove_named_object(const char *name) {
     scoped_lock<interprocess_mutex> lock{*m_mutex};
     m_shared_segment.destroy<char>(name);
+}
+
+void shared_memory_wrapper::notify() {
+    m_cond_read_and_write->notify_all();
+}
+
+void shared_memory_wrapper::wait() {
+    scoped_lock<interprocess_mutex> lock{*m_mutex};
+    m_cond_read_and_write->notify_all();
+    m_cond_read_and_write->wait(lock);
 }

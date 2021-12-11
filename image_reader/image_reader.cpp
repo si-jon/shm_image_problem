@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <experimental/filesystem>
-#include "../shared/shm.h"
+#include "../common/shared_memory_wrapper.h"
 
 image_reader::image_reader()  {
 
@@ -22,7 +22,7 @@ int image_reader::read(const std::string& file_path_in) {
         return 1;
     }
 
-    Shm shm;
+    shared_memory_wrapper shm;
     shm.write_named_object_from_instream(in, "unprocessed");
 
     std::experimental::filesystem::path inpath {file_path_in};

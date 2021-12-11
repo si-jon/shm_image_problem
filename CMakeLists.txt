@@ -33,10 +33,10 @@ get_target_property(boost_include_dirs boost INTERFACE_INCLUDE_DIRECTORIES)
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
 
-add_executable(image_processor image_processor/main.cpp image_processor/image_processor.cpp shared/shm.cpp)
+add_executable(image_processor image_processor/main.cpp image_processor/image_processor.cpp common/shared_memory_wrapper.cpp)
 target_include_directories(image_processor SYSTEM PUBLIC ${boost_include_dirs})
 target_link_libraries(image_processor PUBLIC rt pthread ${PNG_LIBRARY})
 
-add_executable(image_reader image_reader/main.cpp image_reader/image_reader.cpp shared/shm.cpp)
+add_executable(image_reader image_reader/main.cpp image_reader/image_reader.cpp common/shared_memory_wrapper.cpp)
 target_include_directories(image_reader SYSTEM PUBLIC ${boost_include_dirs})
 target_link_libraries(image_reader PUBLIC rt pthread stdc++fs)

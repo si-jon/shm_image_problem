@@ -1,16 +1,16 @@
-#ifndef INCLUDE_SHM_H
-#define INCLUDE_SHM_H
+#ifndef INCLUDE_SHARED_MEMORY_WRAPPER_H
+#define INCLUDE_SHARED_MEMORY_WRAPPER_H
 
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
 #include <iostream>
 
-class Shm {
+class shared_memory_wrapper {
 
     public:
-        Shm();
-        ~Shm();
+        shared_memory_wrapper();
+        ~shared_memory_wrapper();
 
         void print();
         void write_from_instream(std::istream& in);
@@ -20,8 +20,9 @@ class Shm {
         void read_named_object_to_outstream(std::ostream& out, const char* name);
 
         bool named_object_exists(const char* name);
-
         void remove_named_object(const char* name);
+        void notify();
+        void wait();
   
     private:
         boost::interprocess::managed_shared_memory m_shared_segment;
