@@ -12,10 +12,6 @@ class shared_memory_wrapper {
         shared_memory_wrapper();
         ~shared_memory_wrapper();
 
-        void print();
-        void write_from_instream(std::istream& in);
-        void read_to_outstream(std::ostream& out);
-
         void write_named_object_from_instream(std::istream& in, const char* name);
         void read_named_object_to_outstream(std::ostream& out, const char* name);
 

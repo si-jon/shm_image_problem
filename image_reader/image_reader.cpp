@@ -6,11 +6,9 @@
 #include "../common/shared_memory_wrapper.h"
 
 image_reader::image_reader()  {
-
 }
 
 image_reader::~image_reader() {
-
 }
 
 int image_reader::read(const std::string& file_path_in) {

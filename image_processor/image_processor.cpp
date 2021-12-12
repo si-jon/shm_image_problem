@@ -13,7 +13,6 @@ using namespace boost::interprocess;
 
 
 image_processor::image_processor() {
-
 }
 
 image_processor::~image_processor() {
